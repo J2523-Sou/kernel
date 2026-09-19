@@ -9,15 +9,15 @@ on:
 jobs:
   build:
     name: Build Kernel
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       - name: Cache
         id: cache
-        uses: actions/cache@v3
+        uses: actions/cache@v6
         with:
           path: gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu
           key: gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu
@@ -42,7 +42,7 @@ jobs:
           make modules
           make INSTALL_MOD_PATH=modules INSTALL_MOD_STRIP=1 modules_install
       - name: Upload
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         with:
           name: zmooth-kernel@${{ env.commit }}
           path: |
