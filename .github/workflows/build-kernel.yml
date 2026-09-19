@@ -35,16 +35,28 @@ jobs:
       - name: Build kernel
         run: |
           echo "commit=$(echo ${{ github.sha }} | cut -c 1-7)" >> $GITHUB_ENV
-          export ARCH=arm64
-          export CROSS_COMPILE=$(pwd)/gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-
-          make RK3399_IMT_defconfig
-          make -j8
-          make rk3399-tve1030g_IMT.img
+
+          TOOLCHAIN="$(pwd)/gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-"
+
+          echo "Toolchain: ${TOOLCHAIN}"
+          ls -l "${TOOLCHAIN}gcc"
+          "${TOOLCHAIN}gcc" --version
+
+          make ARCH=arm64 CROSS_COMPILE="${TOOLCHAIN}" RK3399_IMT_defconfig
+          make ARCH=arm64 CROSS_COMPILE="${TOOLCHAIN}" -j8
+          make ARCH=arm64 CROSS_COMPILE="${TOOLCHAIN}" rk3399-tve1030g_IMT.img
+
       - name: Build modules
         run: |
-          mkdir modules
-          make modules
-          make INSTALL_MOD_PATH=modules INSTALL_MOD_STRIP=1 modules_install
+          TOOLCHAIN="$(pwd)/gcc-linaro-7.3.1-2018.05-x86_64_aarch64-linux-gnu/bin/aarch64-linux-gnu-"
+
+          mkdir -p modules
+          make ARCH=arm64 CROSS_COMPILE="${TOOLCHAIN}" modules
+          make ARCH=arm64 CROSS_COMPILE="${TOOLCHAIN}" \
+            INSTALL_MOD_PATH=modules \
+            INSTALL_MOD_STRIP=1 \
+            modules_install
+            
       - name: Upload
         uses: actions/upload-artifact@v7
         with:
